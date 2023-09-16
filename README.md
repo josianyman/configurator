@@ -2,14 +2,17 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, run the development server:
+### Download tools if not exists
+1. Download `nvm` tool for Node version manager
+2. Open terminal in the root of the project and run in the terminal `nvm install` to install the correct Node version specified in the `.nvmrc` file
+
+## Start locally for live development
 
 ```bash
+# Install the required `node_modules` libraries
+nmp install
+# Start live development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -32,3 +35,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Deploy on own machine
+
+```bash
+# Install the required `node_modules` libraries if not yet installed
+nmp install 
+# Build production-ready version of the APP
+npm run build
+# Start serving the APP
+npm start 
+```

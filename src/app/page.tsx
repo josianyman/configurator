@@ -1,95 +1,163 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+// Specify the code runs on the client in order to support the interactive functionality
+'use client'
 
+// Import needed library components
+import React from 'react'
+import { z } from 'zod'
+import isNumeric from 'validator/lib/isNumeric'
+import {
+  Button,
+  TextField,
+  Box,
+  Typography,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+} from '@mui/material'
+
+// Define a valid input schema for the form
+// The name corresponds with the input name
+const schema = z.object({
+  number1: z
+    .string()
+    .refine((it) => isNumeric(it), { message: 'Number 1 must be numeric' }),
+  number2: z
+    .string()
+    .refine((it) => isNumeric(it), { message: 'Number 2 must be numeric' }),
+  greeting: z.string(),
+  boolean1: z.string(),
+})
+
+// Define input type of the schema to be used as parameter
+type Input = z.infer<typeof schema>
+
+/**
+ * Main function that returns TSX syntax of dynamic HTML page
+ * Everything returned from this function will be rendered in the page
+ */
 export default function Home() {
+  const [state, setState] = React.useState({
+    number1: '41',
+    number2: '124',
+    greeting: 'Hello world!',
+    boolean1: 'false',
+  })
+
+  function handleChange(e: any) {
+    setState({ ...state, [e.target.name]: e.target.value })
+  }
+
+  /**
+   * Main function to handle the input conversion to the desired output
+   */
+  async function onClick() {
+    // Get the input values
+    try {
+      const input: Input = schema.parse(state)
+      const content: string = mapToResultContent(input)
+      downloadAsTxt(content)
+    } catch (e: any) {
+      alert(e.message)
+    }
+  }
+
+  // Return actual UI components
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
+    <Box sx={{ width: '100%', marginLeft: '10%', paddingTop: '5%' }}>
+      <Typography variant="h1" justifyContent={'center'} gutterBottom>
+        Convert APP
+      </Typography>
+      <Typography variant={'body1'} gutterBottom>
+        Fill up the fields and download the configuration
+      </Typography>
+      <Box
+        component="form"
+        sx={{
+          '& .MuiTextField-root': { m: 1, width: '25ch', marginTop: '5%' },
+        }}
+        noValidate
+        autoComplete="off"
+      >
         <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+          <TextField
+            required
+            id="number1"
+            label="Number 1"
+            variant="outlined"
+            name="number1"
+            value={state.number1}
+            onChange={handleChange}
+          />
+          <TextField
+            id="number2"
+            label="Number 2"
+            variant="outlined"
+            name="number2"
+            value={state.number2}
+            onChange={handleChange}
+          />
+          <TextField
+            required
+            id="greeting"
+            label="Greeting"
+            variant="outlined"
+            name="greeting"
+            value={state.greeting}
+            onChange={handleChange}
+          />
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name={'boolean1'}
+                value={state.boolean1}
+                onChange={handleChange}
+              />
+            }
+            label="Label"
+          />
+        </FormGroup>
+        <div>
+          <Button
+            name="convert"
+            variant={'outlined'}
+            onClick={onClick}
+            sx={{ marginTop: '5%' }}
+          >
+            Download configurations
+          </Button>
+        </div>
+      </Box>
+    </Box>
   )
+}
+
+// Helper functions
+
+function mapToResultContent(input: Input): string {
+  return `${input.number1} + ${input.number2} = ${
+    parseFloat(input.number1) + parseFloat(input.number2)
+  }\n${input.greeting}${
+    input.boolean1 ? '\n\nLabel is selected' : '\nLabel was not selected'
+  }`
+}
+
+function downloadAsTxt(content: string): void {
+  // Create a Blob containing the file content
+  const blob: Blob = new Blob([content], { type: 'text/plain' })
+
+  // Create a URL for the Blob
+  const url: string = URL.createObjectURL(blob)
+
+  // Create an anchor element for downloading
+  const downloadLinkElement: HTMLAnchorElement = document.createElement('a')
+  downloadLinkElement.href = url
+  downloadLinkElement.download = 'configuration.txt'
+
+  // Trigger a click event to download the file
+  downloadLinkElement.click()
+
+  // Clean up by revoking the URL
+  URL.revokeObjectURL(url)
 }
